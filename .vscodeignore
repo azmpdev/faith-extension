@@ -1,0 +1,8 @@
+src/
+node_modules/
+*.vsix
+.venv/
+__pycache__/
+.vscode/
+tsconfig.json
+.gitignore

@@ -42,6 +42,11 @@ node_modules/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
+# Faith Extension: Additional ignores
+.vscode/
+out/
+operation-faith-1.0.0.vsix
+scripts/__pycache__/
 web_modules/
 
 # TypeScript cache

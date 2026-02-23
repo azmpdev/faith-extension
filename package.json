@@ -1,0 +1,71 @@
+{
+  "name": "operation-faith",
+  "displayName": "Operation Faith: AI Architect Link",
+  "description": "Bridges VS Code with Operation Faith in ComfyUI — secure local agent listener with .venv isolation.",
+  "version": "1.0.0",
+  "publisher": "operation-faith",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "operation-faith.toggleServer",
+        "title": "Operation Faith: Toggle Agent Server"
+      },
+      {
+        "command": "operation-faith.showLog",
+        "title": "Operation Faith: Show Server Log"
+      },
+      {
+        "command": "operation-faith.enableAIBridge",
+        "title": "Operation Faith: Enable AI Bridge"
+      },
+      {
+        "command": "operation-faith.disableAIBridge",
+        "title": "Operation Faith: Disable AI Bridge"
+      }
+    ],
+    "configuration": {
+      "title": "Operation Faith",
+      "properties": {
+        "operationFaith.port": {
+          "type": "number",
+          "default": 1337,
+          "description": "Port for the Faith Agent listener (default: 1337)."
+        },
+        "operationFaith.host": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "Host address for the Faith Agent listener."
+        },
+        "operationFaith.modelFamily": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "Preferred LLM model family for the AI Bridge (e.g. gpt-4o-mini, gpt-4o, claude-sonnet-4). Cheaper models save premium tokens."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^3.0.0"
+  }
+}
