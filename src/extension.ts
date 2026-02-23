@@ -151,6 +151,16 @@ async function startServer(context: vscode.ExtensionContext): Promise<void> {
     log(`Workspace root: ${rootPath}`);
     const pythonPath = resolvePythonPath(rootPath);
 
+    // ── Reset vscode_extension.log on listener start ──
+    const logPath = path.join(rootPath, 'LOGS', 'vscode_extension.log');
+    try {
+        if (fs.existsSync(logPath)) {
+            fs.unlinkSync(logPath);
+        }
+        logFileStream = fs.createWriteStream(logPath, { flags: 'a' });
+        logFileStream.on('error', () => { logFileStream = null; });
+    } catch { logFileStream = null; }
+
     if (pythonPath) {
         log(`Python resolved: ${pythonPath}`);
     } else {
@@ -325,7 +335,7 @@ async function killProcessOnPort(port: number): Promise<void> {
     terminal.show();
     terminal.sendText(cmd);
     vscode.window.showInformationMessage(`Attempting to kill process on port ${port}.`);
-}
+// ...existing code...
 }
 
 async function installDeps(

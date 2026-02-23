@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import logging
 import os
 import socket
 import sys
@@ -25,7 +24,6 @@ import time
 import traceback
 import uuid
 from datetime import datetime, timezone
-from logging.handlers import RotatingFileHandler
 from typing import Any
 
 from aiohttp import web
@@ -40,13 +38,10 @@ _DEFAULT_MODEL_FAMILY: str = "gpt-4o-mini"
 _MAX_LOG = 50
 _MAX_INBOX = 20
 _WORKSPACE_ROOT = ""
-_LOG_FILE_PATH: str = ""  # Set during main() → LOGS/faith_listener.log
 _STATE_FILE_PATH: str = "" # Set during main() → LOGS/listener_state.json
 _LIBRARY_ROOT: str = ""    # Set during main() → Release/workflow_library
 
 # Logger setup
-_logger = logging.getLogger("faith_listener")
-_logger.setLevel(logging.INFO)
 
 
 # ── Utilities ──────────────────────────────────────────────────────────
@@ -67,24 +62,6 @@ def _load_env(path: str) -> None:
     except Exception as e:
         print(f"Failed to load .env: {e}")
 
-def _setup_logging(log_file_path: str) -> None:
-    """Setup rotating file logging."""
-    if not log_file_path:
-        return
-    try:
-        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-        # 10MB limit, 5 backups
-        handler = RotatingFileHandler(
-            log_file_path, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
-        )
-        # Use ISO format for consistency with original format
-        # NOTE: %f (microseconds) is NOT valid in time.strftime — only in datetime.strftime.
-        # Python 3.14+ raises ValueError. Use .%03d milliseconds via formatTime override instead.
-        formatter = logging.Formatter("[%(asctime)s]  %(message)s", datefmt="%Y-%m-%dT%H:%M:%S")
-        handler.setFormatter(formatter)
-        _logger.addHandler(handler)
-    except Exception as e:
-        print(f"Failed to setup logging: {e}")
 
 
 def _cleanup_old_logs(log_dir: str, days: int = 7) -> None:
@@ -103,10 +80,6 @@ def _cleanup_old_logs(log_dir: str, days: int = 7) -> None:
             pass
 
 
-def _file_log(text: str) -> None:
-    """Append a timestamped line to the centralized log file."""
-    if _logger.handlers:
-        _logger.info(text)
 
 
 def _safe_print(*parts: Any) -> None:
@@ -116,7 +89,6 @@ def _safe_print(*parts: Any) -> None:
     except UnicodeEncodeError:
         sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
         sys.stdout.flush()
-    _file_log(text)
 
 
 def _cors_headers() -> dict[str, str]:
@@ -696,15 +668,11 @@ def main() -> None:
     # Load .env if present
     _load_env(os.path.join(_WORKSPACE_ROOT, ".env"))
 
-    # Centralized file logging → LOGS/faith_listener.log
-    global _LOG_FILE_PATH, _STATE_FILE_PATH, _LIBRARY_ROOT
-    _LOG_FILE_PATH = os.path.join(_WORKSPACE_ROOT, "LOGS", "faith_listener.log")
+    global _STATE_FILE_PATH, _LIBRARY_ROOT
     _STATE_FILE_PATH = os.path.join(_WORKSPACE_ROOT, "LOGS", "listener_state.json")
     _LIBRARY_ROOT = os.path.join(_WORKSPACE_ROOT, "Release", "workflow_library")
-    
     # ── Security & Hygiene ──
-    _cleanup_old_logs(os.path.dirname(_LOG_FILE_PATH))
-    _setup_logging(_LOG_FILE_PATH)
+    _cleanup_old_logs(os.path.join(_WORKSPACE_ROOT, "LOGS"))
     
     # Load persisted state
     _load_state()

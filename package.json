@@ -5,6 +5,10 @@
   "version": "1.0.0",
   "publisher": "operation-faith",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azmpdev/faith-extension.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
