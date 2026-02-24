@@ -43,6 +43,16 @@ _LIBRARY_ROOT: str = ""    # Set during main() → Release/workflow_library
 
 # Logger setup
 
+import logging
+
+# create a simple logger that writes to stdout; this satisfies references to
+# `_logger.handlers` elsewhere and can be extended later if needed.
+_logger = logging.getLogger("faith_listener")
+_logger.setLevel(logging.INFO)
+if not _logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+    _logger.addHandler(handler)
 
 # ── Utilities ──────────────────────────────────────────────────────────
 
